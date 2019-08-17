@@ -1,60 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CardActivity">
+    tools:context=".MainActivity">
 
-    <RelativeLayout
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="50dp"
+        android:paddingBottom="50dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" />
+
+    <LinearLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingTop="50dp"
-            android:paddingBottom="50dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/background" />
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/txtHeader"
+        <EditText
+            android:id="@+id/person1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/txtMsg"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="18dp"
+            android:gravity="center"
             android:background="@null"
-            android:paddingBottom="5dp"
-            android:hint="@string/header"
-            android:textColorHint="#ECEFF1"
+            android:fontFamily="sans-serif-smallcaps"
+            android:hint="@string/person1"
+            android:padding="@dimen/fivedp"
+            android:singleLine="true"
             android:textColor="@color/colorOffYellow"
             android:textSize="25sp" />
 
-        <android.support.v7.widget.AppCompatEditText
+        <EditText
+            android:id="@+id/conjunction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="@null"
+            android:fontFamily="sans-serif-light"
+            android:padding="@dimen/fivedp"
+            android:singleLine="true"
+            android:text="@string/and"
+            android:textColor="@color/colorOffYellow"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/person2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="@null"
+            android:fontFamily="sans-serif-smallcaps"
+            android:hint="@string/person2"
+            android:padding="@dimen/fivedp"
+            android:singleLine="true"
+            android:textColor="@color/colorOffYellow"
+            android:textSize="25sp" />
+
+
+        <EditText
             android:id="@+id/txtMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:gravity="center"
             android:background="@null"
-            android:text="@string/greeting_message"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:fontFamily="sans-serif-light"
+            android:hint="@string/greeting_message"
+            android:padding="@dimen/fivedp"
             android:textColor="@color/colorOffYellow"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
-        <android.support.v7.widget.AppCompatEditText
-            android:id="@+id/txtFooter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/txtMsg"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="18dp"
-            android:background="@null"
-            android:paddingBottom="5dp"
-            android:text="@string/footer"
-            android:textColor="@color/colorOffYellow"
-            android:textSize="25sp" />
 
-    </RelativeLayout>
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

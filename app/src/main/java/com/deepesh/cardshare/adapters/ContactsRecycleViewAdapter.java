@@ -29,20 +29,20 @@ import java.util.ArrayList;
 
 public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context mContext;
+    private final Context mContext;
     private Cursor mCursor;
-    private ArrayList<Contacts> mAllContacts;
-    private ArrayList<Integer> posClicked = new ArrayList<>();
-    private ArrayList<String> phNumbers = new ArrayList<>();
-    private ArrayList<String> phNumPostMatch = new ArrayList<>();
+    private final ArrayList<Contacts> mAllContacts;
+    private final ArrayList<Integer> posClicked = new ArrayList<>();
+    private final ArrayList<String> phNumbers = new ArrayList<>();
     private ArrayList<String> selectedPhNumbers = new ArrayList<>();
     private int isAnyItemSelected = -1; // -1 no change, 1 added, 2 deleted
     private int selPhNumPrevSize;
-    private PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+    private final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
     private String[] uniqueNumbers;
     private boolean[] uniqueNumChecked;
-    private MyUtils myUtils = new MyUtils();
+    private final MyUtils myUtils = new MyUtils();
 
+    // constructor
     public ContactsRecycleViewAdapter(Context context, ArrayList<Contacts> allContacts, ArrayList<String> existingGuestList) {
         this.mContext = context;
         this.mAllContacts = allContacts;
@@ -52,7 +52,6 @@ public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public ArrayList<String> getArrayList() {
         return selectedPhNumbers;
     }
-
 
     @NonNull
     @Override
@@ -125,8 +124,9 @@ public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
     private class ItemViewHolder extends RecyclerView.ViewHolder {
 
-        TextView initial, name;
-        CheckBox checkBox;
+        final TextView initial;
+        final TextView name;
+        final CheckBox checkBox;
 
         private ItemViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -138,10 +138,7 @@ public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerVie
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "Item at position: " + getAdapterPosition(), Toast.LENGTH_SHORT).show();
-
                     Contacts contacts = mAllContacts.get(getAdapterPosition());
-                    Log.d("Adapter", contacts.getId() + " " + contacts.getName() + " " + contacts.getPhNumber());
 
                     String[] projection = new String[]
                             {BaseColumns._ID,
@@ -155,47 +152,48 @@ public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerVie
                     Cursor cursorNumbers = mContext.getContentResolver().query(
                             ContactsContract.CommonDataKinds.Phone.CONTENT_URI, projection, selection, selectionArgs, null);
 
-                    Log.d("ContactData", DatabaseUtils.dumpCursorToString(cursorNumbers));
-
                     if (cursorNumbers != null) {
                         cursorNumbers.moveToFirst();
                         while (!cursorNumbers.isAfterLast()) {
-                            String phNum = cursorNumbers.getString(3).replace("-", "").replace(" ", "");
+                            String phNum = myUtils.replaceSpacesAndDash(cursorNumbers.getString(3));
 
-                            Log.d("RawphNum: ", phNum);
+                            // in case phone number is starting with 0 then replacing it with India country code
                             if (phNum.startsWith("0"))
                                 phNum = phNum.replaceFirst("0", "+91");
-                            Log.d("phNum.startsWith0: ", phNum);
 
+                            // if no country code is added with number then appending Indian country code with it
                             if (!phNum.startsWith("0") && !phNum.startsWith("+"))
                                 phNum = "+91" + phNum;
-                            Log.d("!phNum.startsWith0: ", phNum);
 
+                            // converting code in International format
                             try {
                                 Phonenumber.PhoneNumber phNumber = phoneNumberUtil.parse(phNum, "");
                                 phNum = phoneNumberUtil.format(phNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
-                                Log.d("phNumUtilParsing: ", phNum);
 
                             } catch (NumberParseException NumEx) {
                                 Log.d("NumberParseException", NumEx.getMessage());
                             }
 
+                            // avoid adding same number again in phNumbers array list
                             if (!phNumbers.contains(phNum)) {
                                 phNumbers.add(phNum);
                             }
                             cursorNumbers.moveToNext();
                         }
 
+                        // making string & boolean array to show alert dialog with additonal number of a contact
+                        // boolean array will decide which item is preselected based on existing guest list received in constructor
                         uniqueNumbers = new String[phNumbers.size()];
                         uniqueNumChecked = new boolean[phNumbers.size()];
                     }
 
+                    // converting item of phNumbers to string array and its corresponding boolean to show it checked
                     for (int i = 0; i < phNumbers.size(); i++) {
                         uniqueNumbers[i] = phNumbers.get(i);
                         uniqueNumChecked[i] = selectedPhNumbers.contains(phNumbers.get(i));
                     }
 
-                    // checking the item if it has only one contact
+                    // checking the item if it has only one contact then enabling its checkbox to check and uncheck
                     if (phNumbers.size() == 1) {
                         if (checkBox.isChecked()) {
                             checkBox.setChecked(false);
@@ -208,11 +206,11 @@ public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerVie
                             selectedPhNumbers.add(phNumbers.get(0));
                         }
                     } else {
-                        // Showing list of contacts to user upon item click
 
+                        // Showing list of additional contacts to user upon item click
                         Dialog dialog;
                         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                        builder.setTitle("Select phone number:");
+                        builder.setTitle(mContext.getString(R.string.select_ph_number));
                         builder.setMultiChoiceItems(uniqueNumbers, uniqueNumChecked,
                                 new DialogInterface.OnMultiChoiceClickListener() {
                                     @Override
@@ -227,8 +225,8 @@ public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerVie
                                 }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // new elements are added in selectedPhNumbers setting item clicked
 
+                                // new elements are added in selectedPhNumbers setting item clicked
                                 for (String uniqueNumber : uniqueNumbers) {
                                     if (selectedPhNumbers.contains(uniqueNumber)) {
                                         isAnyItemSelected = 1;

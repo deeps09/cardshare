@@ -1,4 +1,5 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="peed_height">60dp</dimen>
+    <dimen name="fivedp">5dp</dimen>
 </resources>

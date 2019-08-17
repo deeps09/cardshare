@@ -19,8 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,6 +28,7 @@ import android.widget.Toast;
 
 import com.deepesh.cardshare.db.DbHelper;
 import com.deepesh.cardshare.models.CardItem;
+import com.deepesh.cardshare.utils.MyUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,9 +36,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText textHeader;
-    private EditText textMessage;
-    private EditText textFooter;
+    private EditText person1;
+    private EditText message;
+    private EditText person2;
+    private EditText conjuction;
     private ImageView editGuestList;
     private BottomSheetBehavior bottomSheetBehavior;
     private List<String> guestNum;
@@ -48,43 +48,34 @@ public class MainActivity extends AppCompatActivity {
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
     private String msg;
-    private int RC_PICK_CONTACT = 1;
-    private int RC_CONTACTS_CHOOSER = 101;
+    private final MyUtils myUtils = new MyUtils();
+    private final int RC_PICK_CONTACT = 1;
+    private final int RC_CONTACTS_CHOOSER = 101;
 
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.content_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //set to adjust screen height automatically, when soft keyboard appears on screen
+        person1 = findViewById(R.id.person1);
+        message = findViewById(R.id.txtMsg);
+        person2 = findViewById(R.id.person2);
+        conjuction = findViewById(R.id.conjunction);
 
-        textHeader = findViewById(R.id.txtHeader);
-        textMessage = findViewById(R.id.txtMsg);
-        textFooter = findViewById(R.id.txtFooter);
         editGuestList = findViewById(R.id.editGuestList);
         guestList = findViewById(R.id.guestList);
         TextView listEmptyView = findViewById(R.id.empty_view);
         guestListHeader = findViewById(R.id.guestListHead);
 
-        listEmptyView.setText("No guest added yet !! Use pencil icon to add guests");
+        listEmptyView.setText(getString(R.string.empty_list_text));
         guestList.setEmptyView(listEmptyView);
 
+        loadInitialScreen();
         refreshGuestListView();
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
-                getContacts();
-
-            }
-        });
 
         editGuestList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_content);
-// The View with the BottomSheetBehavior
+
+        // The View with the BottomSheetBehavior
         View bottomSheet = coordinatorLayout.findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -126,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        // if coming back from another activity and bottom sheet is opened then minimizing it
         if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             return;
@@ -134,34 +127,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == RC_PICK_CONTACT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 getContacts();
             else
-                Snackbar.make(textHeader, "Permission denied, unable to load contacts", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(person1, "Permission denied, unable to load contacts", Snackbar.LENGTH_LONG).show();
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -170,10 +141,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // reloading the listview to show the updated list of guests upon coming back
         if (requestCode == RC_CONTACTS_CHOOSER && resultCode == RESULT_OK) {
             refreshGuestListView();
             Toast.makeText(this, "Guest List updated !!", Toast.LENGTH_SHORT).show();
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
+
+    private void loadInitialScreen() {
+        DbHelper dbHelper = new DbHelper(this);
+        CardItem cardItem = dbHelper.getCard();
+
+        if (cardItem != null) {
+            person1.setText(cardItem.getPerson1());
+            person2.setText(cardItem.getPerson2());
+            conjuction.setText(cardItem.getConjunction());
+            message.setText(cardItem.getMessage());
         }
     }
 
@@ -183,11 +167,13 @@ public class MainActivity extends AppCompatActivity {
         CardItem item = dbHelper.getCard();
 
         if (item != null) {
+            // converting contacts in string to array list
             guestNum = Arrays.asList(item.getGuestList().replace("[", "")
                     .replace("]", "").split("\\s*,\\s*"));
             List<String> guestNumWithName = new ArrayList<>();
 
 
+            // preparing for searching contacts from contact storage
             Cursor cursor;
             String[] projection = new String[]
                     {BaseColumns._ID,
@@ -195,10 +181,11 @@ public class MainActivity extends AppCompatActivity {
                             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                             ContactsContract.CommonDataKinds.Phone.NUMBER};
 
-            String selection = ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ? AND " + ContactsContract.Contacts.IN_VISIBLE_GROUP + " = ? ";
+            String selection = ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?";
             String[] selectionArgs;
             String numWithINformat;
 
+            // formatting phone numbers to get only last 10 digit without any extra characters
             for (String num : guestNum) {
                 numWithINformat = num;
                 num = num.replaceAll(" ", "");
@@ -206,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 if (num.length() > 10)
                     num = num.substring(num.length() - 10);
 
-                selectionArgs = new String[]{'%' + num + '%', "1"};
+                selectionArgs = new String[]{myUtils.format10DigitPhoneNumberForSearching(num)};
                 cursor = getContentResolver().query(
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI, projection, selection, selectionArgs, null);
 
@@ -215,12 +202,14 @@ public class MainActivity extends AppCompatActivity {
                     cursor.moveToFirst();
                     guestNumWithName.add(cursor.getString(2) + "\n" + " " + numWithINformat);
                     cursor.close();
+                } else {
+                    // if in any case contact name is not found then showing number only
+                    guestNumWithName.add(numWithINformat);
                 }
             }
 
-            guestListHeader.setText("Guest Listq (" + guestNumWithName.size() + ")");
-            String numbers = guestNumWithName.toString();
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.tvListItem, guestNumWithName);
+            guestListHeader.setText(getString(R.string.guestlist_header_text1) + guestNumWithName.size() + ")");
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.list_item, R.id.tvListItem, guestNumWithName);
             guestList.setAdapter(arrayAdapter);
         }
     }
@@ -230,18 +219,20 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, RC_PICK_CONTACT);
         } else {
 
-            ArrayList<String> existingGuests = new ArrayList<String>();
+            ArrayList<String> existingGuests = new ArrayList<>();
 
             if (guestNum != null && guestNum.size() > 0)
                 existingGuests.addAll(guestNum);
 
             Intent intent = new Intent(this, ContactsChooserActivity.class);
-            ArrayList<String> texts = new ArrayList<>();
-            texts.add(textHeader.getText().toString());
-            texts.add(textMessage.getText().toString());
-            texts.add(textFooter.getText().toString());
-            intent.putStringArrayListExtra("texts", texts);
-            intent.putStringArrayListExtra("guestlist", existingGuests);
+            ArrayList<String> cardTexts = new ArrayList<>();
+            cardTexts.add(person1.getText().toString());
+            cardTexts.add(person2.getText().toString());
+            cardTexts.add(conjuction.getText().toString());
+            cardTexts.add(message.getText().toString());
+
+            intent.putStringArrayListExtra(getString(R.string.cardtexts), cardTexts);
+            intent.putStringArrayListExtra(getString(R.string.guestlist), existingGuests);
             Bundle bundle = new Bundle();
 
             startActivityForResult(intent, RC_CONTACTS_CHOOSER);

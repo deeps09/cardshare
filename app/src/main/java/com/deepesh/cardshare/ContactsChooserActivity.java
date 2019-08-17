@@ -2,9 +2,7 @@ package com.deepesh.cardshare;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
-import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import com.deepesh.cardshare.adapters.ContactsRecycleViewAdapter;
 import com.deepesh.cardshare.db.DbHelper;
@@ -40,15 +36,17 @@ public class ContactsChooserActivity extends AppCompatActivity {
         phoneNumUtil = PhoneNumberUtil.getInstance();
         contactsRv = findViewById(R.id.contactsRecyclerView);
 
+        // getting all the phone numbers in visible groups from contacts storage
         String[] projection = new String[]
                 {ContactsContract.CommonDataKinds.Phone.CONTACT_ID, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
         String orderBy = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC";
-        final String selection = ContactsContract .Contacts.HAS_PHONE_NUMBER + " = ? AND " + ContactsContract.Contacts.IN_VISIBLE_GROUP + " = ? ";
+        final String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? AND " + ContactsContract.Contacts.IN_VISIBLE_GROUP + " = ? ";
         String[] selectionArgs = new String[]{"1", "1"};
 
         Cursor cursor = getContentResolver().query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, projection, selection, selectionArgs, orderBy);
 
+        // setting these two ids to compare and add only unique ids
         int prevId = -1;
         int id = -1;
         Contacts contacts;
@@ -91,17 +89,9 @@ public class ContactsChooserActivity extends AppCompatActivity {
         if (!matrixCursor.isClosed())
             matrixCursor.close();
 
-        for (int i = 0; i < contactsArray.size(); i++) {
-            Contacts c = contactsArray.get(i);
-            Log.d(tag, "id = " + c.getId() + "\n" +
-                    "*************" + "\n" +
-                    "name: " + c.getName() + "\n" +
-                    "Phone: " + c.getPhNumber());
-
-        }
-
+        // getting list of existing guests from main activity
         Intent intent = getIntent();
-        ArrayList<String> guestList = intent.getStringArrayListExtra("guestlist");
+        final ArrayList<String> guestList = intent.getStringArrayListExtra(getString(R.string.guestlist));
 
         final ContactsRecycleViewAdapter recycleViewAdapter = new ContactsRecycleViewAdapter(this, contactsArray, guestList);
         contactsRv.setLayoutManager(new LinearLayoutManager(this));
@@ -113,20 +103,25 @@ public class ContactsChooserActivity extends AppCompatActivity {
 
                 ArrayList<String> selectedContacts = recycleViewAdapter.getArrayList();
 
+                // in case no contact is choosen then showing alert to user
                 if (selectedContacts.size() < 1) {
                     Snackbar.make(contactsRv, " Please choose contacts to send the card !!", Snackbar.LENGTH_SHORT).show();
 
                 } else {
-                    String sharedWith = selectedContacts.toString();
+                    String guestListString = selectedContacts.toString();
 
                     DbHelper dbHelper = new DbHelper(getApplicationContext());
+
+                    // getting value of all text fields of main activity to update them in database
                     Intent intent = getIntent();
-                    ArrayList<String> texts = intent.getStringArrayListExtra("texts");
+                    ArrayList<String> cardTexts = intent.getStringArrayListExtra(getString(R.string.cardtexts));
 
-
-                    CardItem item = new CardItem(texts.get(0), 0, 0, texts.get(1), 0, 0, texts.get(2), 0, 0, sharedWith);
+                    CardItem item = new CardItem(
+                            cardTexts.get(0), 0, 0,
+                            cardTexts.get(1), 0, 0,
+                            cardTexts.get(2), 0, 0,
+                            cardTexts.get(3), 0, 0, guestListString);
                     dbHelper.insertUpdateCard(item);
-                    //Snackbar.make(contactsRv, " Card sent to selected contacts !!", Snackbar.LENGTH_SHORT).show();
                     setResult(RESULT_OK);
                     finish();
                 }

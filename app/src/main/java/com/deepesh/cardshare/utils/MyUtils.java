@@ -12,4 +12,12 @@ public class MyUtils {
         else
             return text;
     }
+
+    public String format10DigitPhoneNumberForSearching(String phoneNumber) {
+        String firstSenondDigit = phoneNumber.substring(0, 2);
+        String thridFourthDigit = phoneNumber.substring(2, 4);
+        String lastSixDigits = phoneNumber.substring(4, phoneNumber.length());
+
+        return "%" + firstSenondDigit + "%" + thridFourthDigit + "%" + lastSixDigits + "%";
+    }
 }

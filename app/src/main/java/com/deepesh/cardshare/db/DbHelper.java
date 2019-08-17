@@ -9,20 +9,23 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.deepesh.cardshare.models.CardItem;
 
 public class DbHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "cardsdb";
     private static final String TABLE_CARDS = "cards";
     private static final String COL_ID = "id";
-    private static final String COL_TEXT1 = "text1";
-    private static final String COL_TEXT1X = "text1x";
-    private static final String COL_TEXT1Y = "text1y";
-    private static final String COL_TEXT2 = "text2";
-    private static final String COL_TEXT2X = "text2x";
-    private static final String COL_TEXT2Y = "text2y";
-    private static final String COL_TEXT3 = "text3";
-    private static final String COL_TEXT3X = "text3x";
-    private static final String COL_TEXT3Y = "text3y";
-    private static final String COL_SHARED_WITH = "shared_with";
+    private static final String COL_PERSON1 = "person1";
+    private static final String COL_PERSON1X = "person1x";
+    private static final String COL_PERSON1Y = "person1y";
+    private static final String COL_PERSON2 = "person2";
+    private static final String COL_PERSON2X = "person2x";
+    private static final String COL_PERSON2Y = "person2y";
+    private static final String COL_CONJ = "conj";
+    private static final String COL_CONJX = "conjx";
+    private static final String COL_CONJY = "conjy";
+    private static final String COL_MESSAGE = "message";
+    private static final String COL_MESSAGEX = "messagex";
+    private static final String COL_MESSAGEY = "messagey";
+    private static final String COL_GUEST_LIST = "guestlist";
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,19 +35,20 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TABLE = "CREATE TABLE " + TABLE_CARDS + "(" +
                 COL_ID + " INTEGER PRIMARY KEY," +
-                COL_TEXT1 + " TEXT," +
-                COL_TEXT1X + " INTEGER," +
-                COL_TEXT1Y + " INTEGER," +
-                COL_TEXT2 + " TEXT," +
-                COL_TEXT2X + " INTEGER," +
-                COL_TEXT2Y + " INTEGER," +
-                COL_TEXT3 + " TEXT," +
-                COL_TEXT3X + " INTEGER," +
-                COL_TEXT3Y + " INTEGER," +
-                COL_SHARED_WITH + " TEXT" + ")";
+                COL_PERSON1 + " TEXT," +
+                COL_PERSON1X + " INTEGER," +
+                COL_PERSON1Y + " INTEGER," +
+                COL_PERSON2 + " TEXT," +
+                COL_PERSON2X + " INTEGER," +
+                COL_PERSON2Y + " INTEGER," +
+                COL_CONJ + " TEXT," +
+                COL_CONJX + " INTEGER," +
+                COL_CONJY + " INTEGER," +
+                COL_MESSAGE + " TEXT," +
+                COL_MESSAGEX + " INTEGER," +
+                COL_MESSAGEY + " INTEGER," +
+                COL_GUEST_LIST + " TEXT" + ")";
         db.execSQL(CREATE_TABLE);
-
-
     }
 
     @Override
@@ -58,16 +62,19 @@ public class DbHelper extends SQLiteOpenHelper {
 
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, 1);
-        cv.put(COL_TEXT1, cardItem.getText1());
-        cv.put(COL_TEXT1X, cardItem.getText1x());
-        cv.put(COL_TEXT1Y, cardItem.getText1y());
-        cv.put(COL_TEXT2, cardItem.getText2());
-        cv.put(COL_TEXT2X, cardItem.getText2x());
-        cv.put(COL_TEXT2Y, cardItem.getText2y());
-        cv.put(COL_TEXT3, cardItem.getText3());
-        cv.put(COL_TEXT3X, cardItem.getText3x());
-        cv.put(COL_TEXT3Y, cardItem.getText3y());
-        cv.put(COL_SHARED_WITH, cardItem.getGuestList());
+        cv.put(COL_PERSON1, cardItem.getPerson1());
+        cv.put(COL_PERSON1X, cardItem.getPerson1x());
+        cv.put(COL_PERSON1Y, cardItem.getPerson1y());
+        cv.put(COL_PERSON2, cardItem.getPerson2());
+        cv.put(COL_PERSON2X, cardItem.getPerson2x());
+        cv.put(COL_PERSON2Y, cardItem.getPerson2y());
+        cv.put(COL_CONJ, cardItem.getConjunction());
+        cv.put(COL_CONJX, cardItem.getConjX());
+        cv.put(COL_CONJY, cardItem.getConjY());
+        cv.put(COL_MESSAGE, cardItem.getMessage());
+        cv.put(COL_MESSAGEX, cardItem.getMessageX());
+        cv.put(COL_MESSAGEY, cardItem.getMessageY());
+        cv.put(COL_GUEST_LIST, cardItem.getGuestList());
 
         Cursor cursor = db.rawQuery("Select * from " + TABLE_CARDS, null);
 
@@ -103,12 +110,16 @@ public class DbHelper extends SQLiteOpenHelper {
                         cursor.getString(7),
                         cursor.getInt(8),
                         cursor.getInt(9),
-                        cursor.getString(10));
+                         cursor.getString(10),
+                         cursor.getInt(11),
+                         cursor.getInt(12),
+                        cursor.getString(13));
 
                // cardItems.add(items);
             //}
             cursor.close();
         }
+        db.close();
         return cardItem;
     }
 }

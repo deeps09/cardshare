@@ -11,11 +11,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ContactsChooserActivity"></activity>
-        <activity android:name=".CardActivity" />
+        <activity
+            android:name=".ContactsChooserActivity"
+            android:label="@string/label_contact_choose_activity"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
+            android:label="@string/label_main_activity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>

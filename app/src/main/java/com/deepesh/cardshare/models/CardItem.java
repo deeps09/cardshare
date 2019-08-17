@@ -1,101 +1,147 @@
 package com.deepesh.cardshare.models;
 
 public class CardItem{
-    private String text1, text2, text3, sharedWith;
+    private String person1, person2, conjunction, guestList, message;
+    private int person1x;
+    private int person1y;
+    private int person2x;
+    private int person2y;
+    private int conjX;
+    private int conjY;
+    private int messageX;
+    private int messageY;
 
-    public CardItem(String text1, int text1x, int text1y, String text2, int text2x, int text2y, String text3, int text3x, int text3y, String sharedWith) {
-        this.text1 = text1;
-        this.text2 = text2;
-        this.text3 = text3;
-        this.sharedWith = sharedWith;
-        this.text1x = text1x;
-        this.text1y = text1y;
-        this.text2x = text2x;
-        this.text2y = text2y;
-        this.text3x = text3x;
-        this.text3y = text3y;
+    public CardItem(String person1, int person1x, int person1y, String person2, int person2x, int person2y,
+                    String conjunction, int conjX, int conjY,  String message,  int messageX, int messageY, String guestList) {
+        this.person1 = person1;
+        this.person2 = person2;
+        this.conjunction = conjunction;
+        this.guestList = guestList;
+        this.message = message;
+        this.person1x = person1x;
+        this.person1y = person1y;
+        this.person2x = person2x;
+        this.person2y = person2y;
+        this.conjX = conjX;
+        this.conjY = conjY;
+        this.messageX = messageX;
+        this.messageY = messageY;
     }
 
-    public String getText1() {
-        return text1;
+    public CardItem(String person1, int person1x, int person1y, String person2, int person2x, int person2y, String conjunction, int conjX, int conjY, String guestList) {
+        this.person1 = person1;
+        this.person2 = person2;
+        this.conjunction = conjunction;
+        this.guestList = guestList;
+        this.person1x = person1x;
+        this.person1y = person1y;
+        this.person2x = person2x;
+        this.person2y = person2y;
+        this.conjX = conjX;
+        this.conjY = conjY;
     }
 
-    public void setText1(String text1) {
-        this.text1 = text1;
+    public String getPerson1() {
+        return person1;
     }
 
-    public String getText2() {
-        return text2;
+    public void setPerson1(String person1) {
+        this.person1 = person1;
     }
 
-    public void setText2(String text2) {
-        this.text2 = text2;
+    public String getPerson2() {
+        return person2;
     }
 
-    public String getText3() {
-        return text3;
+    public void setPerson2(String person2) {
+        this.person2 = person2;
     }
 
-    public void setText3(String text3) {
-        this.text3 = text3;
+    public String getConjunction() {
+        return conjunction;
+    }
+
+    public void setConjunction(String conjunction) {
+        this.conjunction = conjunction;
     }
 
     public String getGuestList() {
-        return sharedWith;
+        return guestList;
     }
 
-    public void setSharedWith(String sharedWith) {
-        this.sharedWith = sharedWith;
+    public void setGuestList(String guestList) {
+        this.guestList = guestList;
     }
 
-    public int getText1x() {
-        return text1x;
+    public String getMessage() {
+        return message;
     }
 
-    public void setText1x(int text1x) {
-        this.text1x = text1x;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public int getText1y() {
-        return text1y;
+    public int getPerson1x() {
+        return person1x;
     }
 
-    public void setText1y(int text1y) {
-        this.text1y = text1y;
+    public void setPerson1x(int person1x) {
+        this.person1x = person1x;
     }
 
-    public int getText2x() {
-        return text2x;
+    public int getPerson1y() {
+        return person1y;
     }
 
-    public void setText2x(int text2x) {
-        this.text2x = text2x;
+    public void setPerson1y(int person1y) {
+        this.person1y = person1y;
     }
 
-    public int getText2y() {
-        return text2y;
+    public int getPerson2x() {
+        return person2x;
     }
 
-    public void setText2y(int text2y) {
-        this.text2y = text2y;
+    public void setPerson2x(int person2x) {
+        this.person2x = person2x;
     }
 
-    public int getText3x() {
-        return text3x;
+    public int getPerson2y() {
+        return person2y;
     }
 
-    public void setText3x(int text3x) {
-        this.text3x = text3x;
+    public void setPerson2y(int person2y) {
+        this.person2y = person2y;
     }
 
-    public int getText3y() {
-        return text3y;
+    public int getConjX() {
+        return conjX;
     }
 
-    public void setText3y(int text3y) {
-        this.text3y = text3y;
+    public void setConjX(int conjX) {
+        this.conjX = conjX;
     }
 
-    private int text1x, text1y, text2x, text2y, text3x, text3y;
+    public int getConjY() {
+        return conjY;
+    }
 
+    public void setConjY(int conjY) {
+        this.conjY = conjY;
+    }
+
+    public int getMessageX() {
+        return messageX;
+    }
+
+    public void setMessageX(int messageX) {
+        this.messageX = messageX;
+    }
+
+    public int getMessageY() {
+        return messageY;
+    }
+
+    public void setMessageY(int messageY) {
+        this.messageY = messageY;
+    }
 }
