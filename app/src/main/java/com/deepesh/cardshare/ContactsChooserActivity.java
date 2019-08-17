@@ -126,7 +126,9 @@ public class ContactsChooserActivity extends AppCompatActivity {
 
                     CardItem item = new CardItem(texts.get(0), 0, 0, texts.get(1), 0, 0, texts.get(2), 0, 0, sharedWith);
                     dbHelper.insertUpdateCard(item);
-                    Snackbar.make(contactsRv, " Card sent to selected contacts !!", Snackbar.LENGTH_SHORT).show();
+                    //Snackbar.make(contactsRv, " Card sent to selected contacts !!", Snackbar.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
                 }
             }
         });

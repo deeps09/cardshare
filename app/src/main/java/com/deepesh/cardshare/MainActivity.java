@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -24,6 +25,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.deepesh.cardshare.db.DbHelper;
 import com.deepesh.cardshare.models.CardItem;
@@ -40,10 +43,13 @@ public class MainActivity extends AppCompatActivity {
     private ImageView editGuestList;
     private BottomSheetBehavior bottomSheetBehavior;
     private List<String> guestNum;
+    private ListView guestList;
+    private TextView guestListHeader;
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
     private String msg;
     private int RC_PICK_CONTACT = 1;
+    private int RC_CONTACTS_CHOOSER = 101;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -60,51 +66,14 @@ public class MainActivity extends AppCompatActivity {
         textMessage = findViewById(R.id.txtMsg);
         textFooter = findViewById(R.id.txtFooter);
         editGuestList = findViewById(R.id.editGuestList);
-        ListView guestList = findViewById(R.id.guestList);
+        guestList = findViewById(R.id.guestList);
+        TextView listEmptyView = findViewById(R.id.empty_view);
+        guestListHeader = findViewById(R.id.guestListHead);
 
-        DbHelper dbHelper = new DbHelper(this);
-        CardItem item = dbHelper.getCard();
+        listEmptyView.setText("No guest added yet !! Use pencil icon to add guests");
+        guestList.setEmptyView(listEmptyView);
 
-        if (item != null) {
-            guestNum = Arrays.asList(item.getGuestList().replace("[", "")
-                    .replace("]", "").split("\\s*,\\s*"));
-            List<String> guestNumWithName = new ArrayList<>();
-
-
-            Cursor cursor;
-            String[] projection = new String[]
-                    {BaseColumns._ID,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                            ContactsContract.CommonDataKinds.Phone.NUMBER};
-
-            String selection = ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ? AND " + ContactsContract.Contacts.IN_VISIBLE_GROUP + " = ? ";
-            String[] selectionArgs;
-            String numWithINformat;
-
-            for (String num : guestNum) {
-                numWithINformat = num;
-                num = num.replaceAll(" ", "");
-
-                if (num.length() > 10)
-                    num = num.substring(num.length() - 10);
-
-                selectionArgs = new String[]{'%' + num + '%', "1"};
-                cursor = getContentResolver().query(
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI, projection, selection, selectionArgs, null);
-
-
-                if (cursor != null && cursor.getCount() > 0) {
-                    cursor.moveToFirst();
-                    guestNumWithName.add(cursor.getString(2) + "\n" + " " + numWithINformat);
-                    cursor.close();
-                }
-            }
-
-            String numbers = guestNumWithName.toString();
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.tvListItem, guestNumWithName);
-            guestList.setAdapter(arrayAdapter);
-        }
+        refreshGuestListView();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -197,14 +166,74 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private void getContacts() {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == RC_CONTACTS_CHOOSER && resultCode == RESULT_OK) {
+            refreshGuestListView();
+            Toast.makeText(this, "Guest List updated !!", Toast.LENGTH_SHORT).show();
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
+
+    private void refreshGuestListView() {
+
+        DbHelper dbHelper = new DbHelper(this);
+        CardItem item = dbHelper.getCard();
+
+        if (item != null) {
+            guestNum = Arrays.asList(item.getGuestList().replace("[", "")
+                    .replace("]", "").split("\\s*,\\s*"));
+            List<String> guestNumWithName = new ArrayList<>();
+
+
+            Cursor cursor;
+            String[] projection = new String[]
+                    {BaseColumns._ID,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                            ContactsContract.CommonDataKinds.Phone.NUMBER};
+
+            String selection = ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ? AND " + ContactsContract.Contacts.IN_VISIBLE_GROUP + " = ? ";
+            String[] selectionArgs;
+            String numWithINformat;
+
+            for (String num : guestNum) {
+                numWithINformat = num;
+                num = num.replaceAll(" ", "");
+
+                if (num.length() > 10)
+                    num = num.substring(num.length() - 10);
+
+                selectionArgs = new String[]{'%' + num + '%', "1"};
+                cursor = getContentResolver().query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI, projection, selection, selectionArgs, null);
+
+
+                if (cursor != null && cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    guestNumWithName.add(cursor.getString(2) + "\n" + " " + numWithINformat);
+                    cursor.close();
+                }
+            }
+
+            guestListHeader.setText("Guest Listq (" + guestNumWithName.size() + ")");
+            String numbers = guestNumWithName.toString();
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.tvListItem, guestNumWithName);
+            guestList.setAdapter(arrayAdapter);
+        }
+    }
+
+    private void getContacts() {
         if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, RC_PICK_CONTACT);
         } else {
 
             ArrayList<String> existingGuests = new ArrayList<String>();
-            existingGuests.addAll(guestNum);
+
+            if (guestNum != null && guestNum.size() > 0)
+                existingGuests.addAll(guestNum);
 
             Intent intent = new Intent(this, ContactsChooserActivity.class);
             ArrayList<String> texts = new ArrayList<>();
@@ -215,8 +244,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putStringArrayListExtra("guestlist", existingGuests);
             Bundle bundle = new Bundle();
 
-            startActivity(intent);
-
+            startActivityForResult(intent, RC_CONTACTS_CHOOSER);
         }
     }
 }

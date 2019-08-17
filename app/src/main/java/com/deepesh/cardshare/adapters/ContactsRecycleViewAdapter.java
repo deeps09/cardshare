@@ -115,7 +115,6 @@ public class ContactsRecycleViewAdapter extends RecyclerView.Adapter<RecyclerVie
             }
             cursor.close();
         }
-
     }
 
     @Override
