@@ -28,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CardActivity extends AppCompatActivity {
 
@@ -87,7 +88,13 @@ public class CardActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, RC_PICK_CONTACT);
         } else {
             Intent intent = new Intent(this, ContactsChooserActivity.class);
+            ArrayList<String> texts = new ArrayList<>();
+            texts.add(textHeader.getText().toString());
+            texts.add(textMessage.getText().toString());
+            texts.add(textFooter.getText().toString());
+            intent.putStringArrayListExtra("texts", texts);
             startActivity(intent);
+
 
         }
     }

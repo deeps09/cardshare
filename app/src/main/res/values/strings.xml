@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Cardshare</string>
     <string name="action_settings">Settings</string>
+    <string name="footer">Footer</string>
+    <string name="greeting_message">Greeting Message</string>
+    <string name="header">Header</string>
+    <string name="edit_guest_list">Edit guest list</string>
 </resources>
