@@ -12,9 +12,12 @@
         style="@style/TextAppearance.AppCompat.Light.SearchResult.Subtitle"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_centerVertical="true"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_centerVertical="true"
+        android:elevation="20dp"
+        android:fontFamily="sans-serif-black"
+        android:textColor="#ffff"
         android:background="@drawable/circle_image_for_listitem"
         android:gravity="center"
         android:text="A" />
@@ -28,7 +31,8 @@
         android:layout_marginLeft="60dp"
         android:layout_marginEnd="40dp"
         android:layout_marginRight="40dp"
-        android:text="Sample" />
+        android:text="Sample"
+        android:textColor="@android:color/black" />
 
     <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/checkbox"

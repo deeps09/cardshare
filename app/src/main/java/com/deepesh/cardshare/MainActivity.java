@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 getContacts();
             else
-                Snackbar.make(person1, "Permission denied, unable to load contacts", Snackbar.LENGTH_LONG).show();
+                Toast.makeText(this, "Permission denied, unable to load contacts", Toast.LENGTH_LONG).show();
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         // reloading the listview to show the updated list of guests upon coming back
         if (requestCode == RC_CONTACTS_CHOOSER && resultCode == RESULT_OK) {
             refreshGuestListView();
-            Toast.makeText(this, "Guest List updated !!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.card_save_confirmation), Toast.LENGTH_SHORT).show();
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
     }

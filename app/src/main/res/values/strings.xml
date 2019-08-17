@@ -14,4 +14,5 @@
     <string name="label_contact_choose_activity">Select Guests</string>
     <string name="guestlist_header_text1">Guest List (</string>
     <string name="select_ph_number">Select phone number:</string>
+    <string name="card_save_confirmation">Card saved and Guest List updated !!</string>
 </resources>
